@@ -9,12 +9,14 @@ public class CreateUser extends BaseApiTest{
 
         return RestAssured
                 .given()
-                    .contentType(ContentType.JSON)
-                    .header(API_KEY, API_VALUE)
-                    .body(requestBody)
+                .log().all()
+                .contentType(ContentType.JSON)
+                .header(API_KEY, API_VALUE)
+                .body(requestBody)
                 .when()
-                    .post("/users")
+                .post("/users")
                 .then()
-                    .extract().response();
+                .log().all()
+                .extract().response();
     }
 }
