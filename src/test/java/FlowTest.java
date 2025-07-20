@@ -1,7 +1,9 @@
 import io.restassured.response.Response;
-import org.testng.Assert;
-import org.testng.annotations.AfterSuite;
 import org.testng.annotations.Test;
+
+import java.util.Optional;
+
+import static org.testng.AssertJUnit.*;
 
 public class FlowTest {
         private final String userName = "Bob";
@@ -10,24 +12,42 @@ public class FlowTest {
         private final String updatedJob = "Automation Engineer";
         private static Integer createdUserId;
 
-        @Test
-        public void createUserTest() {
-            Response response = new CreateUserTest().testCreateUser(userName, userJob);
-            createdUserId = response.jsonPath().getInt("id");
-        }
+    @Test
+    public void createUserTest() {
+        Response response = new CreateUser().createUserTest(userName, userJob);
+        assertEquals(response.statusCode(), 201);
+        assertNotNull(response.jsonPath().getString("id"));
+        assertFalse(response.jsonPath().getString("id").isEmpty());
+        assertNotNull(response.jsonPath().getString("createdAt"));
 
-        @Test(dependsOnMethods = "createUserTest")
-        public void getUserTest() {
-            Response response = new GetUserIdTest().getUserIdTest(createdUserId);
-        }
-
-        @Test(dependsOnMethods = "getUserTest")
-        public void updateUserTest() {
-            Response response = new PutUserIdTest().putUserIdTest(createdUserId, updatedName, updatedJob);
-        }
-
-        @Test(dependsOnMethods = "updateUserTest")
-        public void deleteUserTest() {
-            new DeleteUserIDTest().deleteUserIdTest(createdUserId);
+        createdUserId = response.jsonPath().getInt("id");
     }
+
+    @Test(dependsOnMethods = "createUserTest")
+    public void getUserTest() {
+        Response response = new GetUserId().getUserIdTest(createdUserId);
+        assertEquals(response.statusCode(), 200);
+        assertEquals(Optional.of(response.jsonPath().getInt("data.id")), createdUserId);
+    }
+
+    @Test(dependsOnMethods = "getUserTest")
+    public void updateUserTest() {
+        Response response = new PutUserId().putUserIdTest(createdUserId, updatedName, updatedJob);
+        assertEquals(response.statusCode(), 200);
+        assertEquals(response.jsonPath().getString("name"), updatedName);
+        assertEquals(response.jsonPath().getString("job"), updatedJob);
+    }
+
+    @Test(dependsOnMethods = "updateUserTest")
+    public void deleteUserTest() {
+        Response response = new DeleteUserID().deleteUserIdTest(createdUserId);
+        assertEquals(response.statusCode(), 204);
+    }
+
+     @Test
+     public void negativeGetUserIdTest() {
+     int nonExistentId = 9999;
+     Response response = new GetUserId().getUserIdTest(nonExistentId);
+     assertEquals(response.statusCode(), 404);
+     }
 }
