@@ -9,13 +9,14 @@ public class PutUserId extends BaseApiTest {
 
         return RestAssured
                 .given()
+                .log().all()
                 .contentType(ContentType.JSON)
                 .header(API_KEY, API_VALUE)
                 .body(requestBody)
                 .when()
                 .put("/api/users/" + id)
                 .then()
-                .extract()
-                .response();
+                .log().all()
+                .extract().response();
     }
 }

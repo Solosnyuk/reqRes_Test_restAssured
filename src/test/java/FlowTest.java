@@ -1,4 +1,5 @@
 import io.restassured.response.Response;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.util.Optional;
@@ -26,6 +27,8 @@ public class FlowTest {
     @Test(dependsOnMethods = "createUserTest")
     public void getUserTest() {
         Response response = new GetUserId().getUserIdTest(createdUserId);
+        System.out.println(response.asString());
+
         assertEquals(response.statusCode(), 200);
         assertEquals(Optional.of(response.jsonPath().getInt("data.id")), createdUserId);
     }
@@ -33,9 +36,9 @@ public class FlowTest {
     @Test(dependsOnMethods = "getUserTest")
     public void updateUserTest() {
         Response response = new PutUserId().putUserIdTest(createdUserId, updatedName, updatedJob);
-        assertEquals(response.statusCode(), 200);
-        assertEquals(response.jsonPath().getString("name"), updatedName);
-        assertEquals(response.jsonPath().getString("job"), updatedJob);
+         assertEquals(response.statusCode(), 200);
+         assertEquals(response.jsonPath().getString("name"), updatedName);
+         assertEquals(response.jsonPath().getString("job"), updatedJob);
     }
 
     @Test(dependsOnMethods = "updateUserTest")
